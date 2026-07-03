@@ -337,14 +337,22 @@ export default function MacDesktop() {
         );
         const clicked = Query.point(interactiveBodies, mouse.position);
         if (clicked.length === 0) {
-          // Clicked on empty space! Close all windows!
+          // Clicked on empty space! Close all windows and reset/reposition icons to their grid slots!
           setOpenWindows([]);
           setActiveWindowId(null);
-          // Unfreeze all icons
           icons.forEach(icon => {
             const body = tempBodies[icon.id];
             if (body) {
+              const home = getIconHomePosition(icon.id, window.innerWidth, window.innerHeight);
               Body.setStatic(body, false);
+              Body.setPosition(body, { x: home.x, y: home.y });
+              // Give them a nice soft initial velocity kick to start drifting!
+              Body.setVelocity(body, { 
+                x: (Math.random() - 0.5) * 2.5, 
+                y: (Math.random() - 0.5) * 2.5 
+              });
+              Body.setAngle(body, 0);
+              Body.setAngularVelocity(body, 0);
             }
           });
         } else {
@@ -368,20 +376,33 @@ export default function MacDesktop() {
     canvasElement.addEventListener('mousedown', handleMouseDown);
     canvasElement.addEventListener('mouseup', handleMouseUp);
 
-    // 5. Apply restorative spring force to icons on each step if zero-gravity is active
+    // 5. Apply continuous float logic when zero-gravity is active, or pull home if gravity is turned on
     Events.on(engine, 'afterUpdate', () => {
       icons.forEach((icon) => {
         const body = tempBodies[icon.id];
         if (body && !body.isStatic) {
-          const home = getIconHomePosition(icon.id, window.innerWidth, window.innerHeight);
-          const dx = home.x - body.position.x;
-          const dy = home.y - body.position.y;
-          
-          // Gently pull body to home position (creates floating spring effect)
-          Body.applyForce(body, body.position, {
-            x: dx * 0.00004,
-            y: dy * 0.00004
-          });
+          if (gravity === 0) {
+            // Under zero gravity: let them float and flow around the screen continuously!
+            // If they slow down too much, give them a soft random nudge to keep them in motion.
+            const speed = Math.hypot(body.velocity.x, body.velocity.y);
+            if (speed < 0.4) {
+              const angle = Math.random() * Math.PI * 2;
+              Body.applyForce(body, body.position, {
+                x: Math.cos(angle) * 0.00008,
+                y: Math.sin(angle) * 0.00008
+              });
+            }
+          } else {
+            // When gravity is turned ON (non-zero): pull them home, or let them react to normal gravity!
+            // Let's gently pull them to home positions if gravity is non-zero so they don't pile up permanently at the bottom wall!
+            const home = getIconHomePosition(icon.id, window.innerWidth, window.innerHeight);
+            const dx = home.x - body.position.x;
+            const dy = home.y - body.position.y;
+            Body.applyForce(body, body.position, {
+              x: dx * 0.00004,
+              y: dy * 0.00004
+            });
+          }
         }
       });
     });
