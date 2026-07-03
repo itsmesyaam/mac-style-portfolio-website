@@ -167,6 +167,34 @@ export default function MacDesktop() {
     { id: 'social-whatsapp', type: 'social', title: 'WhatsApp', url: 'https://wa.me/8301846170', iconType: 'whatsapp', initX: window.innerWidth - 100, initY: 620, width: 60, height: 60 },
   ];
 
+  // Helper to dynamically calculate non-overlapping home grid positions based on screen dimensions
+  const getIconHomePosition = (iconId: string, wWidth: number, wHeight: number) => {
+    const iconIndex = icons.findIndex(i => i.id === iconId);
+    if (iconIndex === -1) return { x: 0, y: 0 };
+    
+    const icon = icons[iconIndex];
+    if (icon.type === 'social') {
+      const socialIcons = icons.filter(i => i.type === 'social');
+      const idx = socialIcons.findIndex(i => i.id === iconId);
+      const availableHeight = wHeight - 240; // Spaced between 120 and wHeight-120
+      const spacing = Math.min(100, availableHeight / 5);
+      return { x: wWidth - 100, y: 120 + idx * spacing };
+    } else {
+      const col1 = icons.filter(i => i.type !== 'social' && i.initX === 100);
+      const col2 = icons.filter(i => i.type !== 'social' && i.initX === 210);
+      
+      if (icon.initX === 100) {
+        const idx = col1.findIndex(i => i.id === iconId);
+        const spacing = Math.min(100, (wHeight - 220) / 4);
+        return { x: 100, y: 100 + idx * spacing };
+      } else {
+        const idx = col2.findIndex(i => i.id === iconId);
+        const spacing = Math.min(100, (wHeight - 220) / 5);
+        return { x: 210, y: 100 + idx * spacing };
+      }
+    }
+  };
+
   // Initialize physics loop
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -194,15 +222,14 @@ export default function MacDesktop() {
     // 3. Add desktop icons as physical bodies (Check if already open to maintain static/freeze states)
     const tempBodies: { [key: string]: Body } = {};
     icons.forEach((icon) => {
-      // Keep boundaries relative
-      const x = Math.min(icon.initX, wWidth - 80);
-      const y = Math.min(icon.initY, wHeight - 120);
+      const home = getIconHomePosition(icon.id, wWidth, wHeight);
+      const isAppOpen = openWindows.some(w => w.id === icon.type);
 
-      const body = Bodies.rectangle(x, y, icon.width, icon.height, {
+      const body = Bodies.rectangle(home.x, home.y, icon.width, icon.height, {
         restitution: bounciness,
         frictionAir: 0.015,
         friction: 0.1,
-        isStatic: true, // Lock icons in clean stationary grid to avoid overlaps
+        isStatic: isAppOpen, // Freeze icon body in place if its corresponding window/page is active
         chamfer: { radius: icon.type === 'social' ? 12 : 16 },
         label: `icon-${icon.id}`
       });
@@ -298,14 +325,29 @@ export default function MacDesktop() {
     };
 
     const handleMouseUp = (e: MouseEvent) => {
+      if (e.target !== canvasElement) return;
+
       const clickDist = Math.hypot(e.clientX - clickStartX, e.clientY - clickStartY);
       const clickDuration = Date.now() - clickStartTime;
 
       if (clickDist < 5 && clickDuration < 300) {
-        // Look for intersecting bodies
-        const activeBodies = Composite.allBodies(world).filter(b => !b.isStatic);
-        const clicked = Query.point(activeBodies, mouse.position);
-        if (clicked.length > 0) {
+        // Look for intersecting interactive bodies (ignoring walls)
+        const interactiveBodies = Composite.allBodies(world).filter(b => 
+          b.label.startsWith('icon-') || b.label.startsWith('window-')
+        );
+        const clicked = Query.point(interactiveBodies, mouse.position);
+        if (clicked.length === 0) {
+          // Clicked on empty space! Close all windows!
+          setOpenWindows([]);
+          setActiveWindowId(null);
+          // Unfreeze all icons
+          icons.forEach(icon => {
+            const body = tempBodies[icon.id];
+            if (body) {
+              Body.setStatic(body, false);
+            }
+          });
+        } else {
           const clickedBody = clicked[0];
           if (clickedBody.label.startsWith('icon-')) {
             const iconId = clickedBody.label.replace('icon-', '');
@@ -325,6 +367,24 @@ export default function MacDesktop() {
     const canvasElement = canvasRef.current;
     canvasElement.addEventListener('mousedown', handleMouseDown);
     canvasElement.addEventListener('mouseup', handleMouseUp);
+
+    // 5. Apply restorative spring force to icons on each step if zero-gravity is active
+    Events.on(engine, 'afterUpdate', () => {
+      icons.forEach((icon) => {
+        const body = tempBodies[icon.id];
+        if (body && !body.isStatic) {
+          const home = getIconHomePosition(icon.id, window.innerWidth, window.innerHeight);
+          const dx = home.x - body.position.x;
+          const dy = home.y - body.position.y;
+          
+          // Gently pull body to home position (creates floating spring effect)
+          Body.applyForce(body, body.position, {
+            x: dx * 0.00004,
+            y: dy * 0.00004
+          });
+        }
+      });
+    });
 
     // Start Runner
     const runner = Runner.create();
@@ -377,13 +437,12 @@ export default function MacDesktop() {
         }
       });
 
-      // Reposition static icons dynamically on screen resize to prevent clipping/off-screen drift
+      // Reposition icons dynamically on screen resize using the getIconHomePosition helper to prevent overlaps
       icons.forEach((icon) => {
         const body = bodiesRef.current[icon.id];
         if (body) {
-          const newX = icon.type === 'social' ? wWidth - 100 : icon.initX;
-          const newY = icon.initY;
-          Body.setPosition(body, { x: Math.min(newX, wWidth - 80), y: Math.min(newY, wHeight - 120) });
+          const home = getIconHomePosition(icon.id, wWidth, wHeight);
+          Body.setPosition(body, { x: home.x, y: home.y });
         }
       });
     }
