@@ -106,7 +106,7 @@ export default function MacDesktop() {
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
 
   // Layout page states inside windows
-  const [projectsActiveTab, setProjectsActiveTab] = useState<'bram' | 'zaira'>('bram');
+  const [projectsActiveTab, setProjectsActiveTab] = useState<'buyzone' | 'construction_marketing' | 'education_branding' | 'b2c_market' | 'yk_construction' | 'bram' | 'astrologer_in' | 'doctor_app' | 'anime_ott'>('buyzone');
   const [photosActiveTab, setPhotosActiveTab] = useState<'all' | 'drive' | 'behance' | 'instagram' | 'pinterest' | 'social'>('all');
   const [settingsActiveTab, setSettingsActiveTab] = useState<'profile' | 'analytics' | 'frameworks'>('profile');
   const [frameworksActiveTab, setFrameworksActiveTab] = useState<'management' | 'marketing' | 'infrastructure'>('management');
@@ -924,49 +924,212 @@ export default function MacDesktop() {
 
               {/* PROJECTS HUB */}
               {win.id === 'projects' && (
-                <div className="flex flex-col h-full space-y-4">
-                  <div className="flex gap-2.5 border-b border-white/5 pb-3">
+                <div className="flex h-full gap-4 overflow-hidden">
+                  {/* Left Finder sidebar */}
+                  <div className="w-52 bg-white/3 shrink-0 border border-white/5 rounded-xl p-2.5 space-y-1 overflow-y-auto scrollbar-thin text-[10px]">
+                    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-wider block px-1.5 pb-1 border-b border-white/5 mb-1.5 select-none">Projects Finder</span>
+                    
+                    <button 
+                      onClick={() => setProjectsActiveTab('buyzone')}
+                      className={`w-full p-2 rounded-lg flex items-center gap-1.5 transition-colors clickable text-left ${
+                        projectsActiveTab === 'buyzone' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-white/5'
+                      }`}
+                    >
+                      <Folder className="w-3.5 h-3.5 shrink-0" /> BuyZon Online
+                    </button>
+                    
+                    <button 
+                      onClick={() => setProjectsActiveTab('construction_marketing')}
+                      className={`w-full p-2 rounded-lg flex items-center gap-1.5 transition-colors clickable text-left ${
+                        projectsActiveTab === 'construction_marketing' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-white/5'
+                      }`}
+                    >
+                      <Folder className="w-3.5 h-3.5 shrink-0" /> Construction Branding
+                    </button>
+                    
+                    <button 
+                      onClick={() => setProjectsActiveTab('education_branding')}
+                      className={`w-full p-2 rounded-lg flex items-center gap-1.5 transition-colors clickable text-left ${
+                        projectsActiveTab === 'education_branding' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-white/5'
+                      }`}
+                    >
+                      <Folder className="w-3.5 h-3.5 shrink-0" /> Edu Branding Study
+                    </button>
+                    
+                    <button 
+                      onClick={() => setProjectsActiveTab('b2c_market')}
+                      className={`w-full p-2 rounded-lg flex items-center gap-1.5 transition-colors clickable text-left ${
+                        projectsActiveTab === 'b2c_market' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-white/5'
+                      }`}
+                    >
+                      <Folder className="w-3.5 h-3.5 shrink-0" /> B2C Market Analysis
+                    </button>
+                    
+                    <button 
+                      onClick={() => setProjectsActiveTab('yk_construction')}
+                      className={`w-full p-2 rounded-lg flex items-center gap-1.5 transition-colors clickable text-left ${
+                        projectsActiveTab === 'yk_construction' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-white/5'
+                      }`}
+                    >
+                      <Folder className="w-3.5 h-3.5 shrink-0" /> YK Constructions Blog
+                    </button>
+                    
                     <button 
                       onClick={() => setProjectsActiveTab('bram')}
-                      className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all clickable ${
-                        projectsActiveTab === 'bram' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+                      className={`w-full p-2 rounded-lg flex items-center gap-1.5 transition-colors clickable text-left ${
+                        projectsActiveTab === 'bram' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-white/5'
                       }`}
                     >
-                      B-Ram Nirman
+                      <Folder className="w-3.5 h-3.5 shrink-0" /> B-Ram Nirman
                     </button>
+                    
                     <button 
-                      onClick={() => setProjectsActiveTab('zaira')}
-                      className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all clickable ${
-                        projectsActiveTab === 'zaira' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+                      onClick={() => setProjectsActiveTab('astrologer_in')}
+                      className={`w-full p-2 rounded-lg flex items-center gap-1.5 transition-colors clickable text-left ${
+                        projectsActiveTab === 'astrologer_in' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-white/5'
                       }`}
                     >
-                      Zaira E-comm
+                      <Folder className="w-3.5 h-3.5 shrink-0" /> ASTROLOGERIN.com
+                    </button>
+                    
+                    <button 
+                      onClick={() => setProjectsActiveTab('doctor_app')}
+                      className={`w-full p-2 rounded-lg flex items-center gap-1.5 transition-colors clickable text-left ${
+                        projectsActiveTab === 'doctor_app' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-white/5'
+                      }`}
+                    >
+                      <Folder className="w-3.5 h-3.5 shrink-0" /> Doctors Booking App
+                    </button>
+                    
+                    <button 
+                      onClick={() => setProjectsActiveTab('anime_ott')}
+                      className={`w-full p-2 rounded-lg flex items-center gap-1.5 transition-colors clickable text-left ${
+                        projectsActiveTab === 'anime_ott' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-white/5'
+                      }`}
+                    >
+                      <Folder className="w-3.5 h-3.5 shrink-0" /> Anime OTT Platform
                     </button>
                   </div>
 
-                  {projectsActiveTab === 'bram' ? (
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-4 flex-1">
-                      <div className="flex items-center gap-2">
-                        <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
-                        <h3 className="font-extrabold text-sm text-white">B-Ram Nirman Pvt. Ltd.</h3>
+                  {/* Right Detail Pane */}
+                  <div className="flex-1 bg-white/3 border border-white/5 rounded-xl p-4 overflow-y-auto scrollbar-thin text-left space-y-4">
+                    {projectsActiveTab === 'buyzone' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <h3 className="font-extrabold text-sm text-white">BuyZon Online</h3>
+                        </div>
+                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">E-commerce Website Design & Market Research</p>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Leading the end-to-end development of an e-commerce platform for BuyZon Online, focusing on both technical implementation and strategic market analysis. Designing and coding a user-friendly, scalable website with advanced e-commerce functionalities. Conducting thorough market research to understand customer behavior, industry trends, and competitive landscape. Integrating insights into the platform’s design, features, and marketing strategy to create a seamless shopping experience and drive business growth.
+                        </p>
                       </div>
-                      <p className="text-[11px] text-indigo-400 font-bold uppercase tracking-wider">Role: Technical Content Strategy & Web Operational Management</p>
-                      <p className="text-[11px] text-slate-400 leading-relaxed">
-                        Managed technical layout guidelines, structural framework scopes, and custom web blueprints for engineering architectures. Authored robust enterprise profiles detailing steel frameworks and structural layout blueprints.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-4 flex-1">
-                      <div className="flex items-center gap-2">
-                        <Folder className="w-5 h-5 text-rose-400 animate-pulse" />
-                        <h3 className="font-extrabold text-sm text-white">Zaira Ecommerce</h3>
+                    )}
+
+                    {projectsActiveTab === 'construction_marketing' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <h3 className="font-extrabold text-sm text-white">Construction Firm</h3>
+                        </div>
+                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Marketing and Branding Strategy</p>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Developed comprehensive marketing and branding plans for a construction firm to strengthen its market presence and attract potential clients. Conducted market research to understand industry trends, target audience preferences, and competitor strategies. Created tailored marketing campaigns, content strategies, and branding guidelines to enhance visibility and credibility. Provided actionable recommendations focused on digital outreach, social media presence, and client engagement, contributing to the firm’s long-term growth and brand recognition.
+                        </p>
                       </div>
-                      <p className="text-[11px] text-rose-400 font-bold uppercase tracking-wider">Role: Brand Development Lead</p>
-                      <p className="text-[11px] text-slate-400 leading-relaxed">
-                        Led strategic transformation model converting a clothing boutique brand into a scalable digital e-commerce identity ecosystem. Work extended to material integration parameters, structure profiles, and design branding integrations for glass processing layouts.
-                      </p>
-                    </div>
-                  )}
+                    )}
+
+                    {projectsActiveTab === 'education_branding' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <h3 className="font-extrabold text-sm text-white">Educational Firm</h3>
+                        </div>
+                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Branding Strategy Study</p>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Conducted an in-depth study to develop effective branding strategies for an educational firm, aimed at enhancing brand visibility and market positioning. Analyzed the firm’s existing brand identity, target audience, and competitive landscape to identify key opportunities for growth.
+                        </p>
+                      </div>
+                    )}
+
+                    {projectsActiveTab === 'b2c_market' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <h3 className="font-extrabold text-sm text-white">B2C Product</h3>
+                        </div>
+                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Market Research & Competitor Analysis</p>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Conducted in-depth market research and competitive analysis to identify customer needs and market gaps. Provided actionable insights to shape product positioning and go-to-market strategy.
+                        </p>
+                      </div>
+                    )}
+
+                    {projectsActiveTab === 'yk_construction' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <h3 className="font-extrabold text-sm text-white">YK CONSTRUCTIONS</h3>
+                        </div>
+                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Content Strategy for a Construction Blog</p>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Created and managed a content strategy focused on home design ideas and construction tips. Increased traffic and audience engagement through SEO-friendly articles and social media promotion.
+                        </p>
+                      </div>
+                    )}
+
+                    {projectsActiveTab === 'bram' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <h3 className="font-extrabold text-sm text-white">B-Ram Nirman Pvt. Ltd.</h3>
+                        </div>
+                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Branding & Strategic Content Strategy</p>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Managed technical layout guidelines, structural framework scopes, and custom web blueprints for engineering architectures. Authored robust enterprise profiles detailing steel frameworks and structural layouts.
+                        </p>
+                      </div>
+                    )}
+
+                    {projectsActiveTab === 'astrologer_in' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <h3 className="font-extrabold text-sm text-white">ASTROLOGERIN.com</h3>
+                        </div>
+                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Astrology Platform Project</p>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Designing and developing the astrology platform website ASTROLOGERIN.com, configuring design layout parameters and functional user pipelines.
+                        </p>
+                      </div>
+                    )}
+
+                    {projectsActiveTab === 'doctor_app' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <h3 className="font-extrabold text-sm text-white">Doctors Booking App</h3>
+                        </div>
+                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Mobile Prototyping & Flow Design</p>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Development and user experience prototyping for a mobile Doctors Booking Application, implementing user profiles and slot scheduling controls.
+                        </p>
+                      </div>
+                    )}
+
+                    {projectsActiveTab === 'anime_ott' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <h3 className="font-extrabold text-sm text-white">Anime OTT Platform</h3>
+                        </div>
+                        <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Streaming Interface Design & Development</p>
+                        <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                          Currently working on a custom Anime OTT streaming platform, managing frontend interfaces, responsive styling layers, and streaming video pipelines.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
