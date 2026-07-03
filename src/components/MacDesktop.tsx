@@ -5,7 +5,7 @@ import {
 } from 'matter-js';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Github, Linkedin, Instagram, Pinterest, Behance 
+  Github, Linkedin, Instagram, Pinterest, Behance, Whatsapp 
 } from './BrandIcons';
 import { 
   Award, FileText, Cpu, Layers, 
@@ -19,7 +19,7 @@ interface DesktopIcon {
   type: 'experience' | 'projects' | 'settings' | 'photos' | 'social' | 'power_bi' | 'sql' | 'ui_ux' | 'figma' | 'tableau' | 'excel' | 'frameworks';
   title: string;
   url?: string;
-  iconType: 'document' | 'folder' | 'settings' | 'photos' | 'linkedin' | 'github' | 'behance' | 'instagram' | 'pinterest' | 'app';
+  iconType: 'document' | 'folder' | 'settings' | 'photos' | 'linkedin' | 'github' | 'behance' | 'instagram' | 'pinterest' | 'whatsapp' | 'app';
   initX: number;
   initY: number;
   width: number;
@@ -164,6 +164,7 @@ export default function MacDesktop() {
     { id: 'social-behance', type: 'social', title: 'Behance', url: 'https://www.behance.net/syams11', iconType: 'behance', initX: window.innerWidth - 100, initY: 320, width: 60, height: 60 },
     { id: 'social-instagram', type: 'social', title: 'Instagram', url: 'https://www.instagram.com/stories.syam/', iconType: 'instagram', initX: window.innerWidth - 100, initY: 420, width: 60, height: 60 },
     { id: 'social-pinterest', type: 'social', title: 'Pinterest', url: 'https://in.pinterest.com/framesbysyam/', iconType: 'pinterest', initX: window.innerWidth - 100, initY: 520, width: 60, height: 60 },
+    { id: 'social-whatsapp', type: 'social', title: 'WhatsApp', url: 'https://wa.me/8301846170', iconType: 'whatsapp', initX: window.innerWidth - 100, initY: 620, width: 60, height: 60 },
   ];
 
   // Initialize physics loop
@@ -814,6 +815,11 @@ export default function MacDesktop() {
             {icon.iconType === 'pinterest' && (
               <div className="w-11 h-11 bg-red-600 border border-red-500 rounded-xl flex items-center justify-center shadow">
                 <Pinterest className="w-5.5 h-5.5 text-white" />
+              </div>
+            )}
+            {icon.iconType === 'whatsapp' && (
+              <div className="w-11 h-11 bg-emerald-600 border border-emerald-500 rounded-xl flex items-center justify-center shadow">
+                <Whatsapp className="w-5.5 h-5.5 text-white" />
               </div>
             )}
 
