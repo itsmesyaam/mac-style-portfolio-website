@@ -845,7 +845,9 @@ export default function MacDesktop() {
             </div>
 
             {/* Window scrollable content */}
-            <div className="flex-1 overflow-y-auto p-5 text-left bg-slate-900/70 text-slate-200 text-xs leading-normal select-text scrollbar-thin">
+            <div className={`flex-1 overflow-y-auto p-5 text-left text-xs leading-normal select-text scrollbar-thin transition-colors duration-300 ${
+              isThemeDark ? 'bg-slate-950 text-slate-200' : 'bg-slate-50 text-slate-900'
+            }`}>
               
               {/* EXPERIENCE WINDOW */}
               {win.id === 'experience' && (
