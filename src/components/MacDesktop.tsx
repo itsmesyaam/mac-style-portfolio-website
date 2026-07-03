@@ -94,6 +94,7 @@ export default function MacDesktop() {
   
   // System control configs
   const [gravity, setGravity] = useState<number>(0); // Zero gravity default so icons/windows drift
+  const [zeroGravityEnabled, setZeroGravityEnabled] = useState<boolean>(false);
   const [bounciness, setBounciness] = useState<number>(0.6); // Medium bounciness
   const [isThemeDark, setIsThemeDark] = useState<boolean>(true);
   const [controlCenterOpen, setControlCenterOpen] = useState<boolean>(false);
@@ -399,27 +400,41 @@ export default function MacDesktop() {
       icons.forEach((icon) => {
         const body = tempBodies[icon.id];
         if (body && !body.isStatic) {
-          if (gravity === 0) {
-            // Under zero gravity: let them float and flow around the screen continuously!
-            // If they slow down too much, give them a soft random nudge to keep them in motion.
-            const speed = Math.hypot(body.velocity.x, body.velocity.y);
-            if (speed < 0.4) {
-              const angle = Math.random() * Math.PI * 2;
-              Body.applyForce(body, body.position, {
-                x: Math.cos(angle) * 0.00008,
-                y: Math.sin(angle) * 0.00008
-              });
+          const isDragged = (mouseConstraint as any).body === body;
+          
+          if (!zeroGravityEnabled) {
+            // Under normal mode: keep icons stationary at their home positions (or new dropped custom locations)
+            if (!isDragged) {
+              const home = getIconHomePosition(icon.id, window.innerWidth, window.innerHeight);
+              Body.setPosition(body, { x: home.x, y: home.y });
+              Body.setVelocity(body, { x: 0, y: 0 });
+              Body.setAngle(body, 0);
+              Body.setAngularVelocity(body, 0);
             }
           } else {
-            // When gravity is turned ON (non-zero): pull them home, or let them react to normal gravity!
-            // Let's gently pull them to home positions if gravity is non-zero so they don't pile up permanently at the bottom wall!
-            const home = getIconHomePosition(icon.id, window.innerWidth, window.innerHeight);
-            const dx = home.x - body.position.x;
-            const dy = home.y - body.position.y;
-            Body.applyForce(body, body.position, {
-              x: dx * 0.00004,
-              y: dy * 0.00004
-            });
+            // Zero-gravity / Floating Mode is turned ON!
+            if (gravity === 0) {
+              // Under zero gravity: let them float and flow around the screen continuously!
+              // If they slow down too much, give them a soft random nudge to keep them in motion.
+              const speed = Math.hypot(body.velocity.x, body.velocity.y);
+              if (speed < 0.4 && !isDragged) {
+                const angle = Math.random() * Math.PI * 2;
+                Body.applyForce(body, body.position, {
+                  x: Math.cos(angle) * 0.00008,
+                  y: Math.sin(angle) * 0.00008
+                });
+              }
+            } else {
+              // When gravity is turned ON (non-zero): pull them home, or let them react to normal gravity!
+              // Let's gently pull them to home positions if gravity is non-zero so they don't pile up permanently at the bottom wall!
+              const home = getIconHomePosition(icon.id, window.innerWidth, window.innerHeight);
+              const dx = home.x - body.position.x;
+              const dy = home.y - body.position.y;
+              Body.applyForce(body, body.position, {
+                x: dx * 0.00004,
+                y: dy * 0.00004
+              });
+            }
           }
         }
       });
@@ -440,7 +455,7 @@ export default function MacDesktop() {
         canvasElement.removeEventListener('mouseup', handleMouseUp);
       }
     };
-  }, [openWindows, gravity]);
+  }, [openWindows, gravity, zeroGravityEnabled]);
 
   // Adjust bounciness/restitution in real-time
   useEffect(() => {
@@ -752,6 +767,33 @@ export default function MacDesktop() {
                 className="text-[10px] font-bold bg-white/10 hover:bg-indigo-600 transition-colors text-white py-1 px-2.5 rounded-full flex items-center gap-1.5 clickable"
               >
                 Reset Canvas
+              </button>
+            </div>
+
+            {/* Zero Gravity Toggle */}
+            <div className="flex justify-between items-center pb-2 border-b border-white/5">
+              <span className="text-xs font-semibold text-slate-300">Zero Gravity (Floating Mode)</span>
+              <button 
+                onClick={() => {
+                  const newVal = !zeroGravityEnabled;
+                  setZeroGravityEnabled(newVal);
+                  if (newVal) {
+                    icons.forEach(icon => {
+                      const body = bodiesRef.current[icon.id];
+                      if (body && !body.isStatic) {
+                        Body.setVelocity(body, {
+                          x: (Math.random() - 0.5) * 2.5,
+                          y: (Math.random() - 0.5) * 2.5
+                        });
+                      }
+                    });
+                  }
+                }}
+                className={`py-1 px-3 rounded-full text-[10px] font-bold transition-all clickable ${
+                  zeroGravityEnabled ? 'bg-indigo-600 text-white' : 'bg-white/10 text-slate-400 hover:bg-white/15'
+                }`}
+              >
+                {zeroGravityEnabled ? 'Enabled' : 'Disabled'}
               </button>
             </div>
 
