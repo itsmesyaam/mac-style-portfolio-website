@@ -197,13 +197,11 @@ export default function MacDesktop() {
       const x = Math.min(icon.initX, wWidth - 80);
       const y = Math.min(icon.initY, wHeight - 120);
 
-      const isAppOpen = openWindows.some(w => w.id === icon.type);
-
       const body = Bodies.rectangle(x, y, icon.width, icon.height, {
         restitution: bounciness,
         frictionAir: 0.015,
         friction: 0.1,
-        isStatic: isAppOpen, // Freeze icon body in place if its corresponding window/page is active
+        isStatic: true, // Lock icons in clean stationary grid to avoid overlaps
         chamfer: { radius: icon.type === 'social' ? 12 : 16 },
         label: `icon-${icon.id}`
       });
@@ -827,8 +825,10 @@ export default function MacDesktop() {
             key={win.id}
             id={`window-${win.id}`}
             onClick={() => setActiveWindowId(win.id)}
-            className={`absolute mac-window rounded-2xl z-20 overflow-hidden shadow-2xl ${
-              isActive ? 'ring-2 ring-indigo-500/35 ring-offset-2 ring-offset-slate-900/50' : 'opacity-95'
+            className={`absolute mac-window rounded-2xl overflow-hidden shadow-2xl ${
+              isActive 
+                ? 'z-30 ring-2 ring-indigo-500/35 ring-offset-2 ring-offset-slate-900/50' 
+                : 'z-20 opacity-95'
             }`}
             style={{ width: win.width, height: win.height }}
           >
