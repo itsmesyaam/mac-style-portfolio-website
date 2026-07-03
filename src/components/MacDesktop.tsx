@@ -569,7 +569,7 @@ export default function MacDesktop() {
       {/* Desktop Wallpaper Canvas Cover (8K premium macOS abstract style) */}
       <div className="absolute inset-0 z-0 select-none pointer-events-none">
         <img 
-          src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=3840&q=80" 
+          src="/yosemite.jpg" 
           alt="Desktop Wallpaper" 
           className={`w-full h-full object-cover transition-all duration-700 ${
             isThemeDark ? 'brightness-[0.45] contrast-[1.04] saturate-[0.85]' : 'brightness-[0.85] contrast-[0.95]'
