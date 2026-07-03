@@ -183,10 +183,10 @@ export default function MacDesktop() {
     // 2. Boundaries (Bounces off top Menu bar: y=40, and bottom Dock: y=wHeight-90)
     const wallOptions = { isStatic: true, restitution: bounciness, friction: 0.1 };
     const walls = [
-      Bodies.rectangle(wWidth / 2, 20, wWidth + 400, 40, wallOptions), // Top wall
-      Bodies.rectangle(wWidth / 2, wHeight - 35, wWidth + 400, 90, wallOptions), // Bottom wall (Dock cover)
-      Bodies.rectangle(-20, wHeight / 2, 40, wHeight + 400, wallOptions), // Left wall
-      Bodies.rectangle(wWidth + 20, wHeight / 2, 40, wHeight + 400, wallOptions) // Right wall
+      Bodies.rectangle(wWidth / 2, 20, wWidth + 400, 40, { ...wallOptions, label: 'wall-top' }), // Top wall
+      Bodies.rectangle(wWidth / 2, wHeight - 35, wWidth + 400, 90, { ...wallOptions, label: 'wall-bottom' }), // Bottom wall (Dock cover)
+      Bodies.rectangle(-20, wHeight / 2, 40, wHeight + 400, { ...wallOptions, label: 'wall-left' }), // Left wall
+      Bodies.rectangle(wWidth + 20, wHeight / 2, 40, wHeight + 400, { ...wallOptions, label: 'wall-right' }) // Right wall
     ];
     Composite.add(world, walls);
 
@@ -365,16 +365,24 @@ export default function MacDesktop() {
       const wHeight = window.innerHeight;
       
       allBodies.forEach((body) => {
-        if (body.isStatic) {
-          if (body.position.y < 50) { // Top wall
-            Body.setPosition(body, { x: wWidth / 2, y: 20 });
-          } else if (body.position.y > wHeight - 100) { // Bottom wall
-            Body.setPosition(body, { x: wWidth / 2, y: wHeight - 35 });
-          } else if (body.position.x < 50) { // Left wall
-            Body.setPosition(body, { x: -20, y: wHeight / 2 });
-          } else { // Right wall
-            Body.setPosition(body, { x: wWidth + 20, y: wHeight / 2 });
-          }
+        if (body.label === 'wall-top') {
+          Body.setPosition(body, { x: wWidth / 2, y: 20 });
+        } else if (body.label === 'wall-bottom') {
+          Body.setPosition(body, { x: wWidth / 2, y: wHeight - 35 });
+        } else if (body.label === 'wall-left') {
+          Body.setPosition(body, { x: -20, y: wHeight / 2 });
+        } else if (body.label === 'wall-right') {
+          Body.setPosition(body, { x: wWidth + 20, y: wHeight / 2 });
+        }
+      });
+
+      // Reposition static icons dynamically on screen resize to prevent clipping/off-screen drift
+      icons.forEach((icon) => {
+        const body = bodiesRef.current[icon.id];
+        if (body) {
+          const newX = icon.type === 'social' ? wWidth - 100 : icon.initX;
+          const newY = icon.initY;
+          Body.setPosition(body, { x: Math.min(newX, wWidth - 80), y: Math.min(newY, wHeight - 120) });
         }
       });
     }
