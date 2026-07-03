@@ -90,6 +90,7 @@ export default function MacDesktop() {
   const runnerRef = useRef<Runner | null>(null);
   const bodiesRef = useRef<{ [key: string]: Body }>({});
   const iconClickRef = useRef<{ [key: string]: { x: number; y: number; time: number } }>({});
+  const customHomePositions = useRef<{ [key: string]: { x: number; y: number } }>({});
   
   // System control configs
   const [gravity, setGravity] = useState<number>(0); // Zero gravity default so icons/windows drift
@@ -169,6 +170,9 @@ export default function MacDesktop() {
 
   // Helper to dynamically calculate non-overlapping home grid positions based on screen dimensions
   const getIconHomePosition = (iconId: string, wWidth: number, wHeight: number) => {
+    if (customHomePositions.current[iconId]) {
+      return customHomePositions.current[iconId];
+    }
     const iconIndex = icons.findIndex(i => i.id === iconId);
     if (iconIndex === -1) return { x: 0, y: 0 };
     
@@ -313,6 +317,19 @@ export default function MacDesktop() {
       }
     });
 
+    Events.on(mouseConstraint, 'enddrag', (event: any) => {
+      const draggedBody = event.body;
+      if (draggedBody && draggedBody.label.startsWith('icon-')) {
+        const iconId = draggedBody.label.replace('icon-', '');
+        customHomePositions.current[iconId] = {
+          x: draggedBody.position.x,
+          y: draggedBody.position.y
+        };
+        Body.setVelocity(draggedBody, { x: 0, y: 0 });
+        Body.setAngularVelocity(draggedBody, 0);
+      }
+    });
+
     // Detect click vs drag on bodies
     let clickStartX = 0;
     let clickStartY = 0;
@@ -340,6 +357,7 @@ export default function MacDesktop() {
           // Clicked on empty space! Close all windows and reset/reposition icons to their grid slots!
           setOpenWindows([]);
           setActiveWindowId(null);
+          customHomePositions.current = {};
           icons.forEach(icon => {
             const body = tempBodies[icon.id];
             if (body) {
@@ -610,6 +628,8 @@ export default function MacDesktop() {
       closeAppWindow(win.id);
     });
 
+    customHomePositions.current = {};
+
     // Reset icons coordinates
     icons.forEach(icon => {
       const body = bodiesRef.current[icon.id];
@@ -824,84 +844,31 @@ export default function MacDesktop() {
             }`}
             style={{ width: icon.width, height: icon.height }}
           >
-            {/* Document icon */}
-            {icon.iconType === 'document' && (
-              <div className="w-11 h-13 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-lg flex flex-col justify-between p-1.5 shadow relative overflow-hidden">
-                <div className="w-5 h-1.5 bg-indigo-500 rounded-sm mb-1" />
-                <div className="space-y-1">
-                  <div className="w-full h-0.5 bg-slate-300 dark:bg-slate-700" />
-                  <div className="w-full h-0.5 bg-slate-300 dark:bg-slate-700" />
-                  <div className="w-4/5 h-0.5 bg-slate-300 dark:bg-slate-700" />
-                </div>
-                <FileText className="w-3.5 h-3.5 text-indigo-400 absolute bottom-1 right-1" />
-              </div>
-            )}
-
-            {/* Folder icon */}
-            {icon.iconType === 'folder' && (
-              <div className="w-13 h-11 bg-amber-400/90 dark:bg-amber-600/90 border border-amber-500/80 rounded-lg flex flex-col justify-end p-1.5 shadow relative">
-                <div className="absolute top-[-3px] left-0 w-5 h-2 bg-amber-400/90 dark:bg-amber-600/90 rounded-sm border-t border-l border-amber-500/80" />
-                <Folder className="w-4 h-4 text-amber-900 absolute top-2 left-2 opacity-65" />
-              </div>
-            )}
-
-            {/* Settings App icon */}
-            {icon.iconType === 'settings' && (
-              <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shadow">
-                <Sliders className="w-6 h-6 text-slate-300" />
-              </div>
-            )}
-
-            {/* Photos App icon */}
-            {icon.iconType === 'photos' && (
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-pink-500 via-rose-500 to-yellow-400 border border-white/20 flex items-center justify-center shadow">
-                <ImageIcon className="w-6 h-6 text-white" />
-              </div>
-            )}
-
-            {/* App icons */}
-            {icon.iconType === 'app' && (
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-900 border border-indigo-500/20 flex items-center justify-center shadow relative overflow-hidden">
-                {icon.id === 'power_bi' && <Award className="w-6 h-6 text-yellow-400" />}
-                {icon.id === 'sql' && <Terminal className="w-6 h-6 text-emerald-400" />}
-                {icon.id === 'ui_ux' && <Layers className="w-6 h-6 text-pink-400" />}
-                {icon.id === 'figma' && <Cpu className="w-6 h-6 text-rose-400" />}
-                {icon.id === 'tableau' && <Database className="w-6 h-6 text-blue-400" />}
-                {icon.id === 'excel' && <FileText className="w-6 h-6 text-emerald-500" />}
-              </div>
-            )}
-
-            {/* Social Icons mapping */}
-            {icon.iconType === 'linkedin' && (
-              <div className="w-11 h-11 bg-blue-600 border border-blue-500 rounded-xl flex items-center justify-center shadow">
-                <Linkedin className="w-5.5 h-5.5 text-white" />
-              </div>
-            )}
-            {icon.iconType === 'github' && (
-              <div className="w-11 h-11 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-center shadow">
-                <Github className="w-5.5 h-5.5 text-white" />
-              </div>
-            )}
-            {icon.iconType === 'behance' && (
-              <div className="w-11 h-11 bg-blue-700 border border-blue-600 rounded-xl flex items-center justify-center shadow">
-                <Behance className="w-5.5 h-5.5 text-white" />
-              </div>
-            )}
-            {icon.iconType === 'instagram' && (
-              <div className="w-11 h-11 bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 border border-pink-500/20 rounded-xl flex items-center justify-center shadow">
-                <Instagram className="w-5.5 h-5.5 text-white" />
-              </div>
-            )}
-            {icon.iconType === 'pinterest' && (
-              <div className="w-11 h-11 bg-red-600 border border-red-500 rounded-xl flex items-center justify-center shadow">
-                <Pinterest className="w-5.5 h-5.5 text-white" />
-              </div>
-            )}
-            {icon.iconType === 'whatsapp' && (
-              <div className="w-11 h-11 bg-emerald-600 border border-emerald-500 rounded-xl flex items-center justify-center shadow">
-                <Whatsapp className="w-5.5 h-5.5 text-white" />
-              </div>
-            )}
+            {/* Frosted Glass Icon Squircle */}
+            <div className="w-12 h-12 bg-white/10 dark:bg-slate-900/40 backdrop-blur-lg border border-white/15 dark:border-white/5 rounded-2xl flex items-center justify-center shadow-lg shadow-black/25 relative overflow-hidden transition-all duration-300 group-hover:scale-105 select-none pointer-events-none">
+              {icon.iconType === 'document' && <FileText className="w-6 h-6 text-indigo-400 drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]" />}
+              {icon.iconType === 'folder' && <Folder className="w-6 h-6 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]" />}
+              {icon.iconType === 'settings' && <Sliders className="w-6 h-6 text-slate-300 drop-shadow-[0_0_8px_rgba(203,213,225,0.3)]" />}
+              {icon.iconType === 'photos' && <ImageIcon className="w-6 h-6 text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]" />}
+              
+              {icon.iconType === 'app' && (
+                <>
+                  {icon.id === 'power_bi' && <Award className="w-6 h-6 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]" />}
+                  {icon.id === 'sql' && <Terminal className="w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]" />}
+                  {icon.id === 'ui_ux' && <Layers className="w-6 h-6 text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.4)]" />}
+                  {icon.id === 'figma' && <Cpu className="w-6 h-6 text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.4)]" />}
+                  {icon.id === 'tableau' && <Database className="w-6 h-6 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]" />}
+                  {icon.id === 'excel' && <FileText className="w-6 h-6 text-teal-400 drop-shadow-[0_0_8px_rgba(45,212,191,0.4)]" />}
+                </>
+              )}
+              
+              {icon.iconType === 'linkedin' && <Linkedin className="w-5.5 h-5.5 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]" />}
+              {icon.iconType === 'github' && <Github className="w-5.5 h-5.5 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />}
+              {icon.iconType === 'behance' && <Behance className="w-5.5 h-5.5 text-indigo-300 drop-shadow-[0_0_8px_rgba(165,180,252,0.4)]" />}
+              {icon.iconType === 'instagram' && <Instagram className="w-5.5 h-5.5 text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.4)]" />}
+              {icon.iconType === 'pinterest' && <Pinterest className="w-5.5 h-5.5 text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.4)]" />}
+              {icon.iconType === 'whatsapp' && <Whatsapp className="w-5.5 h-5.5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]" />}
+            </div>
 
             <span className="text-[10px] font-bold text-white select-none pointer-events-none mt-1 truncate max-w-[80px] drop-shadow-md">
               {icon.title}
